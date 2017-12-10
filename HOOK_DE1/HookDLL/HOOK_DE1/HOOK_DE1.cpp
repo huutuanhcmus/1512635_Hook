@@ -13,6 +13,7 @@ HINSTANCE hInst;                                // current instance
 WCHAR szTitle[MAX_LOADSTRING];                  // The title bar text
 WCHAR szWindowClass[MAX_LOADSTRING];            // the main window class name
 HINSTANCE hDll;
+bool flag1 = false;
 // Forward declarations of functions included in this code module:
 ATOM                MyRegisterClass(HINSTANCE hInstance);
 BOOL                InitInstance(HINSTANCE, int);
@@ -163,22 +164,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				if (hDll != NULL)
 				{
-					typedef void(*proc)();
+					typedef void(*proc)(HWND);
 					proc uninstallHook = (proc)GetProcAddress(hDll, "UninstallMouseHook");
 					if (uninstallHook != NULL)
 					{
-						uninstallHook();
+						uninstallHook(hWnd);
 					}
 					FreeLibrary(hDll);
+					hDll = NULL;
 				}
 				else
-					MessageBox(0, L"Không tìm thấy file HookDLL.dll", 0, 0);
+					MessageBox(0, L"Chưa mở Hook!!", 0, 0);
 				break;
 			}
 			case IDC_BUTTON_OUTPUT:
 			{
 				hDll = LoadLibrary(_T("HookDLL.dll"));
-				typedef  int(*proc1) (HWND);
+				typedef  void(*proc1) (HWND);
 				if (hDll != NULL) {
 					proc1 installHookproc = (proc1)GetProcAddress(hDll, "InitMouseHook");
 					if (installHookproc != NULL)
